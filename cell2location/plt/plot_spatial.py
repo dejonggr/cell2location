@@ -112,7 +112,7 @@ def plot_spatial_general(
     text=None,
     circle_diameter=4.0,
     alpha_scaling=1.0,
-    max_col=(np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf),
+    max_col=(np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf, np.inf),
     max_color_quantile=0.98,
     show_img=True,
     img=None,
@@ -124,7 +124,8 @@ def plot_spatial_general(
     crop_x=None,
     crop_y=None,
     text_box_alpha=0.9,
-    reorder_cmap=range(7),
+    cmaps = None,
+    reorder_cmap=range(9),
     style="fast",
     colorbar_position="bottom",
     colorbar_label_kw={},
@@ -173,8 +174,8 @@ def plot_spatial_general(
 
     """
 
-    if value_df.shape[1] > 7:
-        raise ValueError("Maximum of 7 cell types / factors can be plotted at the moment")
+    if value_df.shape[1] > 9:
+        raise ValueError("Maximum of 7 cell types / factors can be plotted at the moment; expanded to 9")
 
     def create_colormap(R, G, B):
         spacing = int(white_spacing * 2.55)
@@ -203,15 +204,23 @@ def plot_spatial_general(
     GreyCM = create_colormap(200, 200, 200)  # #C8C8C8
     WhiteCM = create_colormap(50, 50, 50)  # #323232
     PurpleCM = create_colormap(90, 20, 165)  # #5A14A5
+    PinkCM = create_colormap(237, 19, 128) # #ED1380
+    PeachCM = create_colormap(249, 191, 134) # #F9BF86
 
-    cmaps = [YellowCM, RedCM, BlueCM, GreenCM, PurpleCM, GreyCM, WhiteCM]
+    if cmaps is None:
+        cmaps = [YellowCM, RedCM, BlueCM, GreenCM, PurpleCM, GreyCM, WhiteCM, PinkCM, PeachCM]
+    else:
+        cmaps = cmaps
 
+    print(cmaps)
     cmaps = [cmaps[i] for i in reorder_cmap]
 
     with mpl.style.context(style):
+
         fig = plt.figure()
 
         if colorbar_position == "right":
+
             if colorbar_grid is None:
                 colorbar_grid = (len(labels), 1)
 
@@ -293,6 +302,7 @@ def plot_spatial_general(
         weights = np.zeros(counts.shape)
 
         for c in c_ord:
+
             min_color_intensity = counts[:, c].min()
             max_color_intensity = np.min([np.quantile(counts[:, c], max_color_quantile), max_col[c]])
 
